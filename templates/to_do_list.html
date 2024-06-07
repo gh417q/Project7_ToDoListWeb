@@ -1,0 +1,82 @@
+{% include "header.html" %}
+  <script>
+  $(function() {
+    $( "#datepicker" ).datepicker();
+  });
+  </script>
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('{{list.img_url}}')">
+  <div class="container position-relative px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="post-heading">
+          <h1>{{ list.name }}</h1>
+          <span class="meta">Created on {{ list.created }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<!-- Main Content-->
+<!-- Only show list tasks to the owner, in case some other user gets here -->
+{% if current_user.get_id() == list.owner_id|string %}
+<div class="container px-4 px-lg-5">
+  <div class="row gx-4 gx-lg-5 justify-content-center">
+    <div class="col-md-10 col-lg-8 col-xl-7">
+      <div class="post-preview">
+        <table class="task-table">
+          <tr>
+            <th align="center">Completed</th>
+            <th>Task name</th>
+            <th align="center">Due date</th>
+            <th align="center">Delete</th>
+          </tr>
+          {% for task in tasks %}
+          <tr>
+            <td align="center">
+              <input type="checkbox"
+              {% if task.done %}
+              checked
+              {% endif %}
+                     onchange="window.location.href='{{ url_for('update_task_completion', task_id=task.id) }}'">
+            </td>
+            <td>
+              {{ task.task }}
+            </td>
+            <td align="center">
+              <!--input type="text" id="datedue"-->
+              <!--{{ form.due(class='datepicker') }}-->
+              {{ task.due }}
+            </td>
+            <td align="center">
+              <a href="{{ url_for('delete_task', task_id=task.id) }}">✘</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>      <!-- Divider-->
+      </div>
+      <hr class="my-4" />
+
+      <!-- New Task -->
+    {% from "bootstrap5/form.html" import render_form %}
+      <main class="mb-4">
+        <div class="container">
+          <div class="row">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  <p class="flash">{{ message }}</p>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+            <div class="col-lg-8 col-md-10 mx-auto">
+              {{ render_form(form, button_map={"submit": "primary"}) }}
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% include "footer.html" %}
